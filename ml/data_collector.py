@@ -14,7 +14,7 @@ and prepares the dataset for Machine Learning.
 Current Goal:
 ✔ Camera
 ✔ Pose Detection
-❌ CSV Saving (Later)
+✔ CSV Saving
 ❌ Model Training (Later)
 
 ===========================================================
@@ -26,6 +26,7 @@ import csv
 import os
 import time
 
+# ab ham ek new csv create karke data enter karne ja rhe hai hai
 def save_to_csv(features, pose_name):
     file_exists = os.path.isfile(CSV_FILE)
 
@@ -50,6 +51,19 @@ def save_to_csv(features, pose_name):
             writer.writerow(header)
 
         writer.writerow(features + [pose_name])
+# ab mai ek fn bnakar csv ke ander har pose ki row count karunga professional look ke liye
+def get_sample_count(pose_name):
+       if not os.path.isfile(CSV_FILE):
+                return 0
+
+       with open(CSV_FILE, "r" ) as file:
+        reader = csv.reader(file)
+        next(reader, None)
+        count = 0
+        for row in reader:
+              if row[-1] == pose_name:
+                    count+=1
+       return count
 
 CSV_FILE = "dataset/yoga_pose_dataset.csv"
 os.makedirs("dataset", exist_ok = True)
@@ -57,6 +71,8 @@ os.makedirs("dataset", exist_ok = True)
 SAVE_DELAY = 1.0
 last_save_time = 0
 
+
+#user se pose name lene ke liye 
 while True:
     pose_name = input("Enter Pose Name: ").strip().lower()
 
@@ -65,7 +81,7 @@ while True:
 
     print("Pose name cannot be empty.")
 
-
+sample_count = get_sample_count(pose_name)
 # MediaPipe Pose Shortcut
 mp_pose = mp.solutions.pose
 
@@ -106,11 +122,47 @@ with mp_pose.Pose(
                                 features.extend([landmark.x, landmark.y, landmark.z, landmark.visibility])
                                 # print(len(feature))
         
+                cv2.rectangle(
+                        frame,
+                        (10,10),
+                        (340,190),
+                        (30,30,30),
+                         -1 )
+                cv2.putText(
+                      frame,
+                      f"Pose : {pose_name.capitalize()}",
+                      (20, 40),
+                      cv2.FONT_HERSHEY_SIMPLEX,
+                      0.8,
+                      (0, 255, 0),
+                      2 )
+                cv2.putText(
+                        frame,
+                        f"Samples : {sample_count}",
+                        (20, 80),
+                        cv2.FONT_HERSHEY_SIMPLEX,
+                        0.8,
+                        (255, 255, 0),
+                        2 )
 
+                cv2.putText(
+                        frame,
+                        "Press S : Save",
+                        (20, 120),
+                        cv2.FONT_HERSHEY_SIMPLEX,
+                        0.7,
+                        (0, 255, 255),
+                        2 )
 
-
+                cv2.putText(
+                        frame,
+                        "Press Q : Quit",
+                        (20, 160),
+                        cv2.FONT_HERSHEY_SIMPLEX,
+                        0.7,
+                        (0, 255, 255),
+                        2 )
                 cv2.imshow("AI-Powered Virtual Yoga Trainer - Dataset Collector", frame)
-
                 key = cv2.waitKey(1) & 0xFF
 
                 
@@ -119,12 +171,13 @@ with mp_pose.Pose(
                         if len(features) == 132:
                                 if current_time - last_save_time >= SAVE_DELAY:
                                         save_to_csv(features, pose_name)
-                                        print(f"{pose_name.capitalize()} Pose Saved Successfully.")
+                                        print("Saved Successfully.")
                                         last_save_time = current_time
+                                        sample_count += 1
                                 else:
                                        print("Please wait 1 sec before saving another sample.")
                         else:
-                                print("No Pose Detected")
+                                print("Status: No Pose Detected")
                 if key == ord("q"):
                         break
 

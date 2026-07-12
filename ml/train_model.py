@@ -5,6 +5,7 @@ from sklearn.ensemble import RandomForestClassifier
 from sklearn.metrics import (accuracy_score, classification_report, confusion_matrix )
 import pickle
 import os
+import cv2
 
 df = pd.read_csv("dataset/yoga_pose_dataset.csv")
 # print(df.head())
@@ -65,3 +66,4 @@ with open(MODEL_FILE, "wb") as file:
     pickle.dump(model, file)
 
 print(f"Model saved successfully at: {MODEL_FILE}")
+

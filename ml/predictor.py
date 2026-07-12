@@ -66,6 +66,14 @@ with mp_pose.Pose(
                 "AI-Powered Virtual Yoga Trainer - Predictor",
                 frame
                 )
+            # cv2.putText(
+            #             frame,
+            #             f"Pose : {prediction}",
+            #             (20, 80),
+            #             cv2.FONT_HERSHEY_SIMPLEX,
+            #             0.8,
+            #             (255, 255, 0),
+            #             2 )
 
             key = cv2.waitKey(1) & 0xFF
 
